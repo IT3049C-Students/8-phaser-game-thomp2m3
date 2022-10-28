@@ -27,6 +27,27 @@ var Breakout = new Phaser.Class({
         this.ball.setData('onPaddle', true);
 
         this.paddle = this.physics.add.image(400, 550, 'assets', 'paddle1').setImmovable();
+
+        //Colliders
+        this.physics.add.collider(this.ball, this.bricks, this.hitBrick, null, this);
+        this.physics.add.collider(this.ball, this.paddle, this.hitPaddle, null, this);
+
+        //Input events
+        this.input.on('pointermove', function (pointer) {
+            //Keep paddle within the game bounds
+            this.paddle.x = Phaser.Math.Clamp(pointer.x, 52, 748);
+
+            if (this.ball.getData('onPaddle')) {
+                this.ball.x = this.paddle.x;
+            }
+        }, this);
+
+        this.input.on('pointerup', function (pointer) {
+            if (this.ball.getData('onPaddle')) {
+                this.ball.setVelocity(-75, -300);
+                this.ball.setData('onPaddle', false);
+            }
+        }, this);
     }
 })
 

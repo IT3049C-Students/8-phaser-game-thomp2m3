@@ -8,11 +8,11 @@ var Breakout = new Phaser.Class({
         this.ball;
     },
 
-    preload: function() {
+    preload: function () {
         this.load.atlas('assets', 'my_game/assets/breakout.png', 'my_game/assets/breakout.json');
     },
 
-    create: function() {
+    create: function () {
         //Enable world bounds, but disabling the floor
         this.physics.world.setBoundsCollision(true, true, true, false);
 
@@ -48,6 +48,50 @@ var Breakout = new Phaser.Class({
                 this.ball.setData('onPaddle', false);
             }
         }, this);
+    },
+
+    hitBrick: function (ball, brick) {
+        brick.disableBody(true, true);
+
+        if (this.bricks.countActive() === 0) {
+            this.resetLevel();
+        }
+    },
+
+    resetBall: function () {
+        this.ball.setVelocity(0);
+        this.ball.setPosition(this.paddle.x, 500);
+        this.ball.setData('onPaddle', true);
+    },
+
+    resetLevel: function () {
+        this.resetBall();
+        this.bricks.children.each(function (brick) {
+            brick.enableBody(false, 0, 0, true, true);
+        });
+    },
+
+    hitPaddle: function (ball, paddle) {
+        var diff = 0;
+
+        if (ball.x < paddle.x) {
+            //Ball is on left side of paddle
+            diff = paddle.x - ball.x;
+            ball.setVelocityX(-10 * diff);
+        } else if (ball.x > paddle.x) {
+            //Ball is on right side of paddle
+            diff = ball.x - paddle.x;
+            ball.setVelocityX(10 * diff);
+        } else {
+            //Ball is perfectly in middle, add a little random X to prevent a straight up bounce
+            ball.setVelocityX(2 + Math.random() * 8);
+        }
+    },
+
+    update: function () {
+        if (this.ball.y > 600) {
+            this.resetBall();
+        }
     }
 })
 
